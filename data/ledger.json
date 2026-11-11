@@ -1,0 +1,221 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2026-11-11T13:05:00.868Z",
+  "users": [
+    {
+      "id": "USR-ADMIN-1",
+      "name": "Sarah Jenkins (Vault Admin)",
+      "email": "admin@balancevault.internal",
+      "role": "ADMIN",
+      "passwordHash": "1c06a541d157e57c658030fe67a458bc:650275933220e5ea841c5c838a013826f27cfefd00c3c493266292e3d1b501a1565b2ecd0ee9ece12181333c7e4fa4117ce70783d1e65e05fb8bc3c461f3b950",
+      "createdAt": "2026-11-08T13:05:00.512Z"
+    },
+    {
+      "id": "USR-ALICE",
+      "name": "Alice Johnson",
+      "email": "alice@balancevault.internal",
+      "role": "CUSTOMER",
+      "passwordHash": "7f793282dcddfbf11f6f956fcb30a95a:dc0150992c821decb56b329c10a81d46e8fb21472a97af9f09abcc8cb8fa4e2771cd1f9a269259cd2a4a085359d944afa8e7d344811d031f5424650a9f79136a",
+      "createdAt": "2026-11-08T13:05:00.512Z"
+    },
+    {
+      "id": "USR-BOB",
+      "name": "Bob Martinez",
+      "email": "bob@balancevault.internal",
+      "role": "CUSTOMER",
+      "passwordHash": "d4d0aa98c1750ce6887799fa52eadfc3:e570276e88b62c306ef9bd930e92430958a7b5ae8dd45fce7aec4b0c48d6b8a60351b399edd872b19f0e42c2bdb8c40f4d044477d7eb0c599a5405ad165960a3",
+      "createdAt": "2026-11-08T13:05:00.512Z"
+    },
+    {
+      "id": "USR-AUDITOR-1",
+      "name": "Marcus Vance (Compliance Auditor)",
+      "email": "auditor@balancevault.internal",
+      "role": "AUDITOR",
+      "passwordHash": "248e5d3c1715404879f1a9b8d3000948:590ebb760f8eb9f5613211faad71327df17bfb461f23a4e8e5da9359d7442fe7a34d9f5edf45883709c54251a01d4f40875f53475f33843a916695a5f33bb288",
+      "createdAt": "2026-11-08T13:05:00.512Z"
+    }
+  ],
+  "accounts": [
+    {
+      "id": "ACC-1001",
+      "ownerUserId": "USR-ALICE",
+      "name": "Alice Checking Vault",
+      "email": "alice@balancevault.internal",
+      "balance": 23500,
+      "currency": "USD",
+      "status": "ACTIVE",
+      "createdAt": "2026-11-08T13:05:00.512Z",
+      "updatedAt": "2026-11-08T13:05:00.512Z"
+    },
+    {
+      "id": "ACC-1002",
+      "ownerUserId": "USR-BOB",
+      "name": "Bob Operating Account",
+      "email": "bob@balancevault.internal",
+      "balance": 16000,
+      "currency": "USD",
+      "status": "ACTIVE",
+      "createdAt": "2026-11-08T13:05:00.512Z",
+      "updatedAt": "2026-11-08T13:05:00.512Z"
+    },
+    {
+      "id": "ACC-1003",
+      "ownerUserId": "USR-ALICE",
+      "name": "Alice Escrow Reserve",
+      "email": "alice@balancevault.internal",
+      "balance": 8200,
+      "currency": "USD",
+      "status": "ACTIVE",
+      "createdAt": "2026-11-08T13:05:00.512Z",
+      "updatedAt": "2026-11-08T13:05:00.512Z"
+    },
+    {
+      "id": "ACC-1004",
+      "ownerUserId": "USR-ADMIN-1",
+      "name": "Platform Treasury Pool",
+      "email": "admin@balancevault.internal",
+      "balance": 45000,
+      "currency": "USD",
+      "status": "ACTIVE",
+      "createdAt": "2026-11-08T13:05:00.512Z",
+      "updatedAt": "2026-11-08T13:05:00.512Z"
+    }
+  ],
+  "auditLog": [
+    {
+      "index": 1,
+      "transactionId": "TX-INIT-ACC-1001",
+      "type": "ACCOUNT_CREATION",
+      "actor": {
+        "userId": "USR-ADMIN-1",
+        "email": "admin@balancevault.internal",
+        "name": "Sarah Jenkins (Vault Admin)",
+        "role": "ADMIN"
+      },
+      "fromAccountId": null,
+      "toAccountId": "ACC-1001",
+      "amount": 25000,
+      "currency": "USD",
+      "status": "SUCCESS",
+      "reason": null,
+      "note": "Provisioned for owner USR-ALICE with seed balance",
+      "timestamp": "2026-11-08T13:05:00.512Z",
+      "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "841b47c173e4c990a5634b770869852df59b1c84589902be28abf2c798b6932e",
+      "snapshot": {
+        "fromBalanceBefore": 0,
+        "fromBalanceAfter": 0,
+        "toBalanceBefore": 0,
+        "toBalanceAfter": 25000
+      }
+    },
+    {
+      "index": 2,
+      "transactionId": "TX-INIT-ACC-1002",
+      "type": "ACCOUNT_CREATION",
+      "actor": {
+        "userId": "USR-ADMIN-1",
+        "email": "admin@balancevault.internal",
+        "name": "Sarah Jenkins (Vault Admin)",
+        "role": "ADMIN"
+      },
+      "fromAccountId": null,
+      "toAccountId": "ACC-1002",
+      "amount": 14500,
+      "currency": "USD",
+      "status": "SUCCESS",
+      "reason": null,
+      "note": "Provisioned for owner USR-BOB with seed balance",
+      "timestamp": "2026-11-08T13:05:00.512Z",
+      "previousHash": "841b47c173e4c990a5634b770869852df59b1c84589902be28abf2c798b6932e",
+      "hash": "5ba9f370cd8c5d5c29a3f2cfc7b8ab4d13cdf440fc9f81aa2e35f1d45397e2b4",
+      "snapshot": {
+        "fromBalanceBefore": 0,
+        "fromBalanceAfter": 0,
+        "toBalanceBefore": 0,
+        "toBalanceAfter": 14500
+      }
+    },
+    {
+      "index": 3,
+      "transactionId": "TX-INIT-ACC-1003",
+      "type": "ACCOUNT_CREATION",
+      "actor": {
+        "userId": "USR-ADMIN-1",
+        "email": "admin@balancevault.internal",
+        "name": "Sarah Jenkins (Vault Admin)",
+        "role": "ADMIN"
+      },
+      "fromAccountId": null,
+      "toAccountId": "ACC-1003",
+      "amount": 8200,
+      "currency": "USD",
+      "status": "SUCCESS",
+      "reason": null,
+      "note": "Provisioned for owner USR-ALICE with seed balance",
+      "timestamp": "2026-11-08T13:05:00.512Z",
+      "previousHash": "5ba9f370cd8c5d5c29a3f2cfc7b8ab4d13cdf440fc9f81aa2e35f1d45397e2b4",
+      "hash": "df57b0aa725f5a3dd7f6510cb199660f868a81dfb3d9b0f961e7b9251cea9d46",
+      "snapshot": {
+        "fromBalanceBefore": 0,
+        "fromBalanceAfter": 0,
+        "toBalanceBefore": 0,
+        "toBalanceAfter": 8200
+      }
+    },
+    {
+      "index": 4,
+      "transactionId": "TX-INIT-ACC-1004",
+      "type": "ACCOUNT_CREATION",
+      "actor": {
+        "userId": "USR-ADMIN-1",
+        "email": "admin@balancevault.internal",
+        "name": "Sarah Jenkins (Vault Admin)",
+        "role": "ADMIN"
+      },
+      "fromAccountId": null,
+      "toAccountId": "ACC-1004",
+      "amount": 45000,
+      "currency": "USD",
+      "status": "SUCCESS",
+      "reason": null,
+      "note": "Provisioned for owner USR-ADMIN-1 with seed balance",
+      "timestamp": "2026-11-08T13:05:00.512Z",
+      "previousHash": "df57b0aa725f5a3dd7f6510cb199660f868a81dfb3d9b0f961e7b9251cea9d46",
+      "hash": "792b6dca732fa658193ae13e7d04f0745a376c3e46d2d37bd4b694556327c682",
+      "snapshot": {
+        "fromBalanceBefore": 0,
+        "fromBalanceAfter": 0,
+        "toBalanceBefore": 0,
+        "toBalanceAfter": 45000
+      }
+    },
+    {
+      "index": 5,
+      "transactionId": "TX-SEEDED-901",
+      "type": "TRANSFER",
+      "actor": {
+        "userId": "USR-ALICE",
+        "email": "alice@balancevault.internal",
+        "name": "Alice Johnson",
+        "role": "CUSTOMER"
+      },
+      "fromAccountId": "ACC-1001",
+      "toAccountId": "ACC-1002",
+      "amount": 1500,
+      "currency": "USD",
+      "status": "SUCCESS",
+      "reason": null,
+      "note": "Q4 Contractor payment to Bob",
+      "timestamp": "2026-11-11T01:05:00.867Z",
+      "previousHash": "792b6dca732fa658193ae13e7d04f0745a376c3e46d2d37bd4b694556327c682",
+      "hash": "fed249286430c115b79f7caa2170c517ad985618ba5fa616f889f645f241cc76",
+      "snapshot": {
+        "fromBalanceBefore": 25000,
+        "fromBalanceAfter": 23500,
+        "toBalanceBefore": 14500,
+        "toBalanceAfter": 16000
+      }
+    }
+  ]
+}

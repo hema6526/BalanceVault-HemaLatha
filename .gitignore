@@ -1,0 +1,7 @@
+node_modules/
+tools/
+data/.secret
+data/test-ledger-*.json
+*.tmp*
+.DS_Store
+Thumbs.db

@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BalanceVault | Secure Money Movement & Immutable Audit Ledger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Toast Notification Center -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- ============================================== -->
+  <!-- AUTHENTICATION GATE (SHOWN WHEN LOGGED OUT) -->
+  <!-- ============================================== -->
+  <section id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z"/>
+            <path d="M12 8v8"/>
+            <path d="M8 12h8"/>
+          </svg>
+        </div>
+        <div>
+          <h1>BalanceVault</h1>
+          <p class="text-muted">Server-Enforced RBAC Money Movement & SHA-256 Audit Ledger</p>
+        </div>
+      </div>
+
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab-btn active" id="tabLoginBtn">Sign In</button>
+        <button type="button" class="auth-tab-btn" id="tabRegisterBtn">Register Customer</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form">
+        <div class="form-group">
+          <label for="loginEmail" class="form-label">Email Address</label>
+          <input type="email" id="loginEmail" class="form-control" placeholder="alice@balancevault.internal" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword" class="form-label">Password</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnLoginSubmit">Sign In Securely</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="auth-form" style="display: none;">
+        <div class="form-group">
+          <label for="regName" class="form-label">Full Legal Name</label>
+          <input type="text" id="regName" class="form-control" placeholder="e.g. Priya Sharma" required>
+        </div>
+        <div class="form-group">
+          <label for="regEmail" class="form-label">Email Address</label>
+          <input type="email" id="regEmail" class="form-control" placeholder="priya@example.com" required>
+        </div>
+        <div class="form-group">
+          <label for="regPassword" class="form-label">Password (min 6 chars)</label>
+          <input type="password" id="regPassword" class="form-control" placeholder="••••••••" minlength="6" required>
+        </div>
+        <div class="form-group">
+          <label for="regDeposit" class="form-label">Starting Deposit ($0 - $10,000)</label>
+          <div class="input-with-prefix">
+            <span class="input-prefix">$</span>
+            <input type="number" id="regDeposit" class="form-control input-amount" min="0" max="10000" step="0.01" value="1000.00">
+          </div>
+          <small class="text-muted">Self-registration strictly assigns CUSTOMER role on the server.</small>
+        </div>
+        <button type="submit" class="btn btn-success btn-block btn-lg" id="btnRegisterSubmit">Create Customer Account</button>
+      </form>
+
+      <!-- Quick Demo Credentials -->
+      <div class="demo-creds-box">
+        <div class="demo-creds-title">Quick Demo Sign-In (Test Server-Enforced Roles):</div>
+        <div class="demo-creds-grid">
+          <button type="button" class="demo-role-btn" data-email="alice@balancevault.internal" data-pass="Customer123!">
+            <span class="role-pill role-customer">CUSTOMER</span>
+            <strong>Alice Johnson</strong>
+            <small>Owns ACC-1001, ACC-1003</small>
+          </button>
+          <button type="button" class="demo-role-btn" data-email="bob@balancevault.internal" data-pass="Customer123!">
+            <span class="role-pill role-customer">CUSTOMER</span>
+            <strong>Bob Martinez</strong>
+            <small>Owns ACC-1002</small>
+          </button>
+          <button type="button" class="demo-role-btn" data-email="admin@balancevault.internal" data-pass="Admin123!">
+            <span class="role-pill role-admin">ADMIN</span>
+            <strong>Sarah Jenkins</strong>
+            <small>Provision, Deposit, Freeze</small>
+          </button>
+          <button type="button" class="demo-role-btn" data-email="auditor@balancevault.internal" data-pass="Auditor123!">
+            <span class="role-pill role-auditor">AUDITOR</span>
+            <strong>Marcus Vance</strong>
+            <small>Read-Only Audit & Verify</small>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- MAIN DASHBOARD (SHOWN WHEN AUTHENTICATED) -->
+  <!-- ============================================== -->
+  <div id="dashboardApp" style="display: none; flex-direction: column; min-height: 100vh;">
+    <!-- Navigation Bar -->
+    <header class="app-header">
+      <div class="header-container">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z"/>
+              <path d="M12 8v8"/>
+              <path d="M8 12h8"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>BalanceVault</h1>
+            <span class="brand-subtitle">RBAC Money Movement & Immutable Audit Ledger</span>
+          </div>
+        </div>
+
+        <div class="header-status">
+          <!-- Authenticated User Badge -->
+          <div class="user-session-pill" id="userSessionPill">
+            <span class="role-pill" id="currentUserRoleBadge">--</span>
+            <div class="user-session-info">
+              <strong id="currentUserName">--</strong>
+              <small id="currentUserEmail">--</small>
+            </div>
+          </div>
+
+          <div class="status-pill status-verified" id="ledgerStatusPill" title="Click to run full cryptographic verification">
+            <span class="status-dot"></span>
+            <span class="status-label" id="ledgerStatusText">Ledger Verified (SHA-256)</span>
+          </div>
+
+          <button class="btn btn-secondary btn-sm" id="btnRunAudit" title="Recalculate and verify SHA-256 hash chains">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+            Verify Ledger
+          </button>
+
+          <button class="btn btn-primary btn-sm" id="btnOpenNewAccountModal" style="display: none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            New Account
+          </button>
+
+          <button class="btn btn-ghost btn-sm text-danger" id="btnLogout" title="Sign out or switch role">
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-content">
+      <!-- Role Permissions Banner -->
+      <div class="rbac-banner" id="rbacBanner"></div>
+
+      <!-- Top Stats Row -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title" id="statLiquidityLabel">Visible Liquidity</span>
+            <div class="stat-icon icon-emerald">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="stat-value" id="statTotalLiquidity">$0.00</div>
+          <div class="stat-footer">
+            <span class="stat-badge badge-success">USD Vault</span>
+            <span class="stat-subtext">Scoped by server RBAC role</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Accessible Accounts</span>
+            <div class="stat-icon icon-blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="stat-value" id="statActiveAccounts">0</div>
+          <div class="stat-footer">
+            <span class="stat-badge badge-neutral">Ownership Guarded</span>
+            <span class="stat-subtext">Zero overdraft accounts</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Audited Events</span>
+            <div class="stat-icon icon-purple">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 3 21 3 21 8"></polyline>
+                <line x1="4" y1="20" x2="21" y2="3"></line>
+                <polyline points="8 21 3 21 3 16"></polyline>
+                <line x1="20" y1="4" x2="3" y2="21"></line>
+              </svg>
+            </div>
+          </div>
+          <div class="stat-value" id="statTotalTransactions">0</div>
+          <div class="stat-footer">
+            <span class="stat-badge badge-success" id="statSuccessCount">0 Success</span>
+            <span class="stat-subtext" id="statFailedCount">0 Rejected</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Ledger Block Integrity</span>
+            <div class="stat-icon icon-teal">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="stat-value integrity-pristine" id="statLedgerIntegrity">SECURE</div>
+          <div class="stat-footer">
+            <span class="stat-badge badge-success">Actor + SHA-256 Chain</span>
+            <span class="stat-subtext" id="statChainBlocks">0 blocks verified</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Workspace -->
+      <div class="content-layout">
+        <!-- Left Column: Transfer Panel & Accounts List -->
+        <div class="layout-left">
+          <!-- Secure Transfer Box -->
+          <section class="card transfer-card" id="transferCardSection">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="card-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 16V4M7 4L3 8M7 4L11 8M17 8V20M17 20L21 16M17 20L13 16"/>
+                  </svg>
+                </div>
+                <div>
+                  <h2>Secure Money Transfer</h2>
+                  <p class="card-desc">Server-verified ownership, atomic rollback & overdraft guard</p>
+                </div>
+              </div>
+            </div>
+
+            <form id="transferForm" class="transfer-form">
+              <div class="form-group">
+                <label for="fromAccountSelect" class="form-label">
+                  <span>Sender Account (Your Owned Accounts)</span>
+                  <span class="label-info" id="senderBalanceHint">Select an account</span>
+                </label>
+                <select id="fromAccountSelect" class="form-control" required>
+                  <option value="">-- Choose Source Account --</option>
+                </select>
+              </div>
+
+              <div class="transfer-arrow-divider">
+                <div class="divider-line"></div>
+                <div class="arrow-badge" title="Atomic Money Movement">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="7 13 12 18 17 13"></polyline>
+                    <polyline points="7 6 12 11 17 6"></polyline>
+                  </svg>
+                </div>
+                <div class="divider-line"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="toAccountSelect" class="form-label">
+                  <span>Receiver Account (Directory)</span>
+                  <span class="label-info" id="receiverBalanceHint">Select destination</span>
+                </label>
+                <select id="toAccountSelect" class="form-control" required>
+                  <option value="">-- Choose Destination Account --</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="transferAmount" class="form-label">
+                  <span>Transfer Amount ($ USD)</span>
+                  <span class="label-info" id="maxTransferHint">Available: $0.00</span>
+                </label>
+                <div class="input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" id="transferAmount" class="form-control input-amount" placeholder="0.00" min="0.01" step="0.01" required>
+                </div>
+                <div class="quick-amounts">
+                  <button type="button" class="btn-chip" data-amount="100">+$100</button>
+                  <button type="button" class="btn-chip" data-amount="500">+$500</button>
+                  <button type="button" class="btn-chip" data-amount="1000">+$1,000</button>
+                  <button type="button" class="btn-chip" data-amount="5000">+$5,000</button>
+                  <button type="button" class="btn-chip btn-chip-max" id="btnTransferMax">MAX</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="transferNote" class="form-label">
+                  <span>Transaction Memo / Note</span>
+                  <span class="label-optional">(Optional)</span>
+                </label>
+                <input type="text" id="transferNote" class="form-control" placeholder="e.g. Q4 Settlement, Invoice #1024">
+              </div>
+
+              <div class="transfer-preview" id="transferPreview" style="display: none;">
+                <div class="preview-row">
+                  <span>Sender Remaining Balance:</span>
+                  <strong id="previewSenderAfter">$0.00</strong>
+                </div>
+                <div class="preview-guarantee">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                  Protected by Server RBAC, Mutex Lock & Rollback
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnExecuteTransfer">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                Execute Atomic Transfer
+              </button>
+            </form>
+          </section>
+
+          <!-- Managed Accounts Section -->
+          <section class="card accounts-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="card-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                  </svg>
+                </div>
+                <div>
+                  <h2 id="accountsSectionTitle">Your Accounts</h2>
+                  <p class="card-desc">Scoped strictly by server role & ownership</p>
+                </div>
+              </div>
+              <div class="header-actions">
+                <button class="btn btn-ghost btn-sm" id="btnRefreshAccounts" title="Refresh accounts">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="accounts-search-bar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="accountSearchInput" placeholder="Filter by ID, name or email...">
+            </div>
+
+            <div class="accounts-list" id="accountsList">
+              <div class="loading-state">
+                <div class="spinner"></div>
+                <span>Loading ledger accounts...</span>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Right Column: Immutable Audit Ledger Explorer -->
+        <div class="layout-right">
+          <section class="card ledger-card">
+            <div class="card-header ledger-header">
+              <div class="card-title-group">
+                <div class="card-icon icon-purple">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                  </svg>
+                </div>
+                <div>
+                  <h2>Immutable Audit Ledger</h2>
+                  <p class="card-desc">Every event cryptographically binds WHO initiated it (Actor ID + Role) to the SHA-256 block hash</p>
+                </div>
+              </div>
+
+              <div class="ledger-actions">
+                <button class="btn btn-secondary btn-sm" id="btnExportLedgerJson" title="Export audit trail as JSON">
+                  Export JSON
+                </button>
+                <button class="btn btn-ghost btn-sm text-danger" id="btnResetDemoData" style="display: none;" title="Admin only: Reset system back to seed state">
+                  Reset Demo
+                </button>
+              </div>
+            </div>
+
+            <div class="ledger-toolbar">
+              <div class="ledger-tabs">
+                <button class="tab-btn active" data-type="ALL">All Events</button>
+                <button class="tab-btn" data-type="TRANSFER">Transfers</button>
+                <button class="tab-btn" data-type="DEPOSIT">Deposits</button>
+                <button class="tab-btn" data-type="WITHDRAWAL">Withdrawals</button>
+                <button class="tab-btn" data-status="REJECTED">Rejected / Blocked</button>
+              </div>
+
+              <div class="ledger-search-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="ledgerSearchInput" placeholder="Search TxID, Actor, Account, Memo...">
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="ledger-table" id="ledgerTable">
+                <thead>
+                  <tr>
+                    <th width="65">Block #</th>
+                    <th width="130">Timestamp</th>
+                    <th width="120">Tx ID</th>
+                    <th width="160">Initiated By (Actor)</th>
+                    <th width="105">Type</th>
+                    <th>Movement (From &rarr; To)</th>
+                    <th width="110" class="text-right">Amount</th>
+                    <th width="95">Status</th>
+                    <th width="110">SHA-256 Hash</th>
+                    <th width="50">View</th>
+                  </tr>
+                </thead>
+                <tbody id="ledgerTableBody">
+                  <tr>
+                    <td colspan="10" class="text-center py-8">
+                      <div class="spinner"></div>
+                      <p class="mt-2 text-muted">Reading immutable ledger chain...</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="ledger-footer">
+              <div class="footer-left">
+                <span id="ledgerShowingText">Showing 0 transactions</span>
+              </div>
+              <div class="footer-right">
+                <span class="chain-indicator">
+                  <span class="chain-dot"></span>
+                  Chained SHA-256 + Actor Identity Active
+                </span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: CREATE ACCOUNT (ADMIN ONLY) -->
+  <div class="modal-backdrop" id="newAccountModal" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>Provision New Account (Admin)</h3>
+          <p class="text-muted">Assign account ownership to a registered user and record initial funding.</p>
+        </div>
+        <button class="btn-close-modal" data-close-modal>&times;</button>
+      </div>
+      <form id="newAccountForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="accOwnerSelect" class="form-label">Assign Account Owner *</label>
+            <select id="accOwnerSelect" class="form-control" required></select>
+          </div>
+          <div class="form-group">
+            <label for="accHolderName" class="form-label">Account Label *</label>
+            <input type="text" id="accHolderName" class="form-control" placeholder="e.g. Alice Reserve Vault" required>
+          </div>
+          <div class="form-group">
+            <label for="accInitialBalance" class="form-label">Initial Balance Deposit ($ USD)</label>
+            <div class="input-with-prefix">
+              <span class="input-prefix">$</span>
+              <input type="number" id="accInitialBalance" class="form-control input-amount" placeholder="0.00" min="0" step="0.01" value="1000.00">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary">Provision Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DEPOSIT FUNDS (ADMIN ONLY) -->
+  <div class="modal-backdrop" id="depositModal" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>Admin Capital Deposit</h3>
+          <p class="text-muted">Only ADMIN users are permitted to inject external capital.</p>
+        </div>
+        <button class="btn-close-modal" data-close-modal>&times;</button>
+      </div>
+      <form id="depositForm">
+        <input type="hidden" id="depositAccountId">
+        <div class="modal-body">
+          <div class="account-summary-pill" id="depositAccountInfo">Account: <strong>--</strong></div>
+          <div class="form-group mt-4">
+            <label for="depositAmount" class="form-label">Deposit Amount ($ USD) *</label>
+            <div class="input-with-prefix">
+              <span class="input-prefix">$</span>
+              <input type="number" id="depositAmount" class="form-control input-amount" placeholder="0.00" min="0.01" step="0.01" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="depositNote" class="form-label">Deposit Memo / Reference</label>
+            <input type="text" id="depositNote" class="form-control" placeholder="e.g. Wire Inflow">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-success">Confirm Deposit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: WITHDRAW FUNDS (ACCOUNT OWNER ONLY) -->
+  <div class="modal-backdrop" id="withdrawModal" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>Withdraw Funds</h3>
+          <p class="text-muted">Only the account owner can withdraw funds. Guarded against overdrafts.</p>
+        </div>
+        <button class="btn-close-modal" data-close-modal>&times;</button>
+      </div>
+      <form id="withdrawForm">
+        <input type="hidden" id="withdrawAccountId">
+        <div class="modal-body">
+          <div class="account-summary-pill" id="withdrawAccountInfo">Account: <strong>--</strong></div>
+          <div class="form-group mt-4">
+            <label for="withdrawAmount" class="form-label">Withdrawal Amount ($ USD) *</label>
+            <div class="input-with-prefix">
+              <span class="input-prefix">$</span>
+              <input type="number" id="withdrawAmount" class="form-control input-amount" placeholder="0.00" min="0.01" step="0.01" required>
+            </div>
+            <div class="current-bal-note" id="withdrawMaxNote">Current Balance: $0.00</div>
+          </div>
+          <div class="form-group">
+            <label for="withdrawNote" class="form-label">Withdrawal Memo / Reference</label>
+            <input type="text" id="withdrawNote" class="form-control" placeholder="e.g. External payout">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-danger">Confirm Withdrawal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: LEDGER INTEGRITY AUDIT REPORT -->
+  <div class="modal-backdrop" id="auditReportModal" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>Ledger Cryptographic Audit Verification</h3>
+          <p class="text-muted">Full SHA-256 verification of balances, chains, and actor identities.</p>
+        </div>
+        <button class="btn-close-modal" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="auditReportLoading" class="text-center py-6">
+          <div class="spinner"></div>
+          <p class="mt-2 text-muted">Running cryptographic hash audit...</p>
+        </div>
+        <div id="auditReportResult" style="display: none;">
+          <div class="audit-status-banner" id="auditBanner">
+            <div class="banner-icon" id="auditBannerIcon"></div>
+            <div>
+              <h4 id="auditBannerTitle">Integrity Verified</h4>
+              <p id="auditBannerDesc">All blocks validated. No tampering detected.</p>
+            </div>
+          </div>
+          <div class="audit-details-grid">
+            <div class="audit-stat-item">
+              <span class="text-muted">Total Blocks Validated</span>
+              <strong id="auditTotalBlocks">0</strong>
+            </div>
+            <div class="audit-stat-item">
+              <span class="text-muted">Hash Algorithm</span>
+              <strong>SHA-256 (Canonical + Actor)</strong>
+            </div>
+            <div class="audit-stat-item">
+              <span class="text-muted">Verified Timestamp</span>
+              <strong id="auditVerifiedTime">--</strong>
+            </div>
+            <div class="audit-stat-item">
+              <span class="text-muted">Tamper Status</span>
+              <strong class="text-success" id="auditTamperStatus">0 Alterations Found</strong>
+            </div>
+          </div>
+          <div class="hash-explorer-box mt-4">
+            <div class="hash-line">
+              <span class="hash-label">Genesis Previous Hash:</span>
+              <code class="hash-code">0000000000000000000000000000000000000000000000000000000000000000</code>
+            </div>
+            <div class="hash-line mt-2">
+              <span class="hash-label">Latest Block Tip Hash:</span>
+              <code class="hash-code" id="auditLatestHash">--</code>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal>Close</button>
+        <button type="button" class="btn btn-primary" id="btnReVerifyModal">Re-Verify Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BLOCK DETAIL INSPECTOR -->
+  <div class="modal-backdrop" id="blockDetailModal" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>Ledger Block Inspector</h3>
+          <p class="text-muted" id="blockModalSubtitle">Inspecting block details & cryptographic proof</p>
+        </div>
+        <button class="btn-close-modal" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="blockDetailContent"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal>Close Inspector</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

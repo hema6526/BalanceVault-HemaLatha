@@ -1,0 +1,24 @@
+{
+  "name": "balancevault",
+  "version": "1.0.0",
+  "description": "Secure Money Movement and Transaction Ledger System with Immutable Audit Trails",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node tests/ledger.test.js"
+  },
+  "keywords": [
+    "ledger",
+    "money-movement",
+    "audit-trail",
+    "fintech",
+    "immutable-ledger",
+    "atomic-transactions"
+  ],
+  "author": "BalanceVault Team",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
