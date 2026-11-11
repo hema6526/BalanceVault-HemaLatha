@@ -2,8 +2,7 @@
 
 > **Server-Enforced RBAC Money Movement & Cryptographically Verifiable Immutable Audit Ledger**
 
-🌐 **Live Deployment:** [https://balancevault-hemalatha.onrender.com](https://balancevault-hemalatha.onrender.com)
-
+🌐 **Live Deployment:** https://balancevault-hemalatha-283k.onrender.com/
 BalanceVault is a secure financial ledger system engineered around one core guarantee: **the wrong person cannot move money they should not, and every movement (or blocked attempt) cryptographically proves who initiated it.**
 
 ---
